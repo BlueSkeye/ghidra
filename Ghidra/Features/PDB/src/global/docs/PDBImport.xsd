@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="urn:ghidra:pdb:import"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/XMLSchema.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:gpi="urn:ghidra:pdb:import">
+  <xs:simpleType name="oleGUID">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[\[]{1}[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}[\]]{1}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ZeroXPrefixedHexadecimalValue">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0x[a-f0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ZeroXPrefixed64BitsHexadecimalValue">
+    <xs:restriction base="gpi:ZeroXPrefixedHexadecimalValue">
+      <xs:maxLength value="64"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="EnumMemberType">
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StructureMemberType">
+    <xs:attribute name="datatype" type="xs:string" use="required"/>
+    <xs:attribute name="kind" type="xs:string" use="required"/>
+    <xs:attribute name="length" type="gpi:ZeroXPrefixed64BitsHexadecimalValue" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="offset" type="gpi:ZeroXPrefixedHexadecimalValue" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="DatatypeType">
+    <xs:sequence>
+      <xs:element name="member" type="gpi:StructureMemberType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="length" type="gpi:ZeroXPrefixed64BitsHexadecimalValue" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="kind" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="EnumType">
+    <xs:sequence>
+      <xs:element name="member" type="gpi:EnumMemberType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="length" type="gpi:ZeroXPrefixed64BitsHexadecimalValue" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="DatatypeCollectionType">
+    <xs:sequence>
+      <xs:element name="datatype" type="gpi:DatatypeType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="EnumCollectionType">
+    <xs:sequence>
+      <xs:element name="enum" type="gpi:EnumType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="pdbType">
+    <xs:sequence>
+      <xs:element name="enums" type="gpi:EnumCollectionType"/>
+      <xs:element name="datatypes" type="gpi:DatatypeCollectionType"/>
+    </xs:sequence>
+    <xs:attribute name="age" type="xs:int" use="required"/>
+    <xs:attribute name="exe" type="xs:string" use="required"/>
+    <xs:attribute name="file" type="xs:string" use="required"/>
+    <xs:attribute name="guid" type="gpi:oleGUID" use="required"/>
+  </xs:complexType>
+  <xs:element name="pdb" type="gpi:pdbType"/>
+</xs:schema>
